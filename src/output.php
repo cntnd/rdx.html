@@ -1,48 +1,57 @@
 <?php
-if(!rex_addon::get('markitup')->isAvailable()) {
+if (!rex_addon::get('markitup')->isAvailable()) {
     echo rex_view::error('Dieses Modul ben&ouml;tigt das "MarkItUp" Addon!');
 }
 
-$text = '<div class="text">'.markitup::parseOutput ('textile', 'REX_VALUE[id=1 output="html"]').'</div>'.PHP_EOL;
+$text = '<div class="text">' . markitup::parseOutput('textile', 'REX_VALUE[id=1 output="html"]') . '</div>' . PHP_EOL;
 
-if(!rex::isBackend()) {
+$slice = $this->getCurrentSlice();
+$truncate = (bool)$slice->getValue(2);
+$truncate_lines = (int)$slice->getValue(3);
+$uuid = uniqid();
 
-echo $text;
+if (!rex::isBackend()) {
+    if (!$truncate) {
+        echo $text;
+    }
+    else {
+        echo '<div class="truncate" id="truncate-'.$uuid.'">'.$text.'</div>';
+        echo '<a target="'.$uuid.'" class="read-more">Mehr</a>';
+        echo '<a target="'.$uuid.'" class="read-less" style="display: none;">Schliessen</a>';
+        ?>
+        <script src="https://cdn.jsdelivr.net/npm/trunk8@0.0.1/trunk8.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                $('#truncate-<?= $uuid ?>').trunk8({
+                    lines: <?= $truncate_lines ?>,
+                    parseHTML: true,
+                    tooltip: false,
+                    fill: '&hellip;'
+                });
+                $('.read-more').click(function(){
+                    $('#truncate-'+$(this).attr('target')).trunk8('revert');
+                    $(this).hide();
+                    $('.read-less[target='+$(this).attr('target')+']').show();
+                });
 
+                $('.read-less').click(function(){
+                    $('#truncate-'+$(this).attr('target')).trunk8();
+                    $(this).hide();
+                    $('.read-more[target='+$(this).attr('target')+']').show();
+                });
+            });
+        </script>
+        <?php
+    }
 } else {
- echo '
-  <div id="nurtext" class="bereichswrapper">
-    <div class="form-horizontal output">
-     <h2 class="ueberschrift" >Nur Text</h2>
-       <div class="form-group">
-         <label class="col-sm-3 control-label">Nur Text</label>
-         <div class="col-sm-9">'.$text.'</div>
-       </div>
+    ?>
+    <div class="bereichswrapper">
+        <div class="form-horizontal output">
+            <?= $text ?>
+            <div class="<?php if (!$truncate) echo "hide"; ?>">
+                <strong>Text kürzen aktiviert. Anzahl Zeilen: <?= $truncate_lines ?></strong>
+            </div>
+        </div>
     </div>
-  </div>
-
-<style>
-#nurtext .bereichswrapper {
-  margin: 5px 0 5px 0;
-  background: #f5f5f5;
-  padding: 5px 15px 5px 15px;
-  border: 1px solid #9da6b2;
-}
-
-#nurtext .control-label {
-  font-weight: normal;
-  font-size: 12px;
-  margin-top: -6px;
-}
-
-#nurtext  h2.ueberschrift {
-  font-size: 12px !important;
-  padding: 0 10px 10px 10px;
-  margin-bottom: 15px;
-  width: 100%;
-  font-weight: bold;
-  border-bottom: 1px solid #31404F;
-}
-
-</style>'.PHP_EOL;
+    <?php
 }
