@@ -5,9 +5,8 @@ if (!rex_addon::get('markitup')->isAvailable()) {
 
 $text = '<div class="text">' . markitup::parseOutput('textile', 'REX_VALUE[id=1 output="html"]') . '</div>' . PHP_EOL;
 
-$slice = $this->getCurrentSlice();
-$truncate = (bool)$slice->getValue(2);
-$truncate_lines = (int)$slice->getValue(3);
+$truncate = (bool)REX_VALUE[2];
+$truncate_lines = (int)REX_VALUE[3];
 $uuid = uniqid();
 
 if (!rex::isBackend()) {

@@ -3,8 +3,8 @@
 if (!rex_addon::get('markitup')->isAvailable()) {
     echo rex_view::error('Dieses Modul ben&ouml;tigt das "MarkItUp" Addon!');
 }
-$slice = $this->getCurrentSlice();
-$truncate = (bool)$slice->getValue(2);
+//$slice = $this->getCurrentSlice();
+$truncate = (bool)REX_VALUE[2];
 $truncate_checked = "";
 if ($truncate) {
     $truncate_checked = "CHECKED";
